@@ -1,62 +1,54 @@
 <template>
-  <div class="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-slate-100 font-sans">
-    <div class="w-full max-w-md bg-slate-800/80 border border-slate-700/80 p-8 rounded-3xl shadow-2xl backdrop-blur-md space-y-6">
-      
-      <!-- Header Login -->
+  <main class="max-w-md mx-auto px-6 py-16">
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-sm space-y-6">
+      <!-- Header -->
       <div class="text-center space-y-2">
-        <div class="w-12 h-12 bg-blue-950/80 border border-blue-800/50 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-          🔒
+        <div class="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-600 text-2xl mb-1">
+          🔑
         </div>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Portal Admin</h2>
-        <p class="text-xs text-slate-400">Silakan masuk menggunakan kredensial Supabase Anda.</p>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Login Admin</h1>
+        <p class="text-slate-500 text-xs">Masukkan email dan password admin Supabase kamu.</p>
       </div>
 
       <!-- Form Login -->
       <form @submit.prevent="handleLogin" class="space-y-4">
-        <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-300">Email Admin</label>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700">Email Admin</label>
           <input 
             v-model="email" 
-            type="email" 
             required 
-            placeholder="admin@yohani.dev" 
-            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm"
+            type="email" 
+            placeholder="admin@email.com" 
+            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition text-sm"
           >
         </div>
 
-        <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-300">Password</label>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700">Password</label>
           <input 
             v-model="password" 
-            type="password" 
             required 
+            type="password" 
             placeholder="••••••••" 
-            class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm"
+            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition text-sm"
           >
         </div>
 
         <button 
           :disabled="loading" 
           type="submit" 
-          class="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-white font-medium text-sm transition shadow-lg shadow-blue-600/20 disabled:opacity-50 mt-2"
+          class="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-md shadow-blue-500/20 disabled:opacity-50 active:scale-95"
         >
-          {{ loading ? 'Memeriksa Kredensial...' : 'Masuk Dashboard' }}
+          {{ loading ? 'Memproses...' : 'Masuk ke Dashboard' }}
         </button>
       </form>
 
       <!-- Pesan Error -->
-      <p v-if="errorMsg" class="p-3 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-400 text-center text-xs font-medium">
-        {{ errorMsg }}
+      <p v-if="errorMessage" class="p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-center text-xs font-medium">
+        {{ errorMessage }}
       </p>
-
-      <div class="text-center pt-2">
-        <router-link to="/" class="text-xs text-slate-500 hover:text-slate-300 transition">
-          ← Kembali ke Beranda
-        </router-link>
-      </div>
-
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup>
@@ -64,28 +56,28 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabaseClient'
 
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
-const errorMsg = ref('')
-const router = useRouter()
+const errorMessage = ref('')
 
 const handleLogin = async () => {
   loading.value = true
-  errorMsg.value = ''
+  errorMessage.value = ''
 
   try {
     const { error } = await supabase.auth.signInWithPassword({
       email: email.value,
-      password: password.value,
+      password: password.value
     })
 
     if (error) throw error
 
-    // Berhasil Login -> Buka Dashboard Admin
+    // Jika login berhasil, redirect langsung ke Dashboard Admin!
     router.push('/admin')
   } catch (err) {
-    errorMsg.value = 'Akses ditolak: Email atau password salah!'
+    errorMessage.value = 'Login Gagal: ' + (err.message || 'Email atau password salah.')
   } finally {
     loading.value = false
   }
